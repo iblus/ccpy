@@ -296,10 +296,6 @@ class AboutWidget(QtWidgets.QDialog):
 
             License：MIT
             
-            Website：www.vnpy.org
-
-            Github：www.github.com/vnpy/vnpy
-            
             """
 
         label = QtWidgets.QLabel()

@@ -9,7 +9,7 @@ from ccFunction import getTempPath
 from cc import cc
 from ccObject import CCIndexData, CCTickData
 from eventType import *
-from eventEngine import Event
+from eventEngine import Event, EventEngine2
 import pandas as pd
 
 
@@ -38,9 +38,8 @@ class MainEngine(object):
         """退出程序前调用，保证正常退出"""
 
         # 停止事件引擎
+        self.dataEngine.exit()
         self.eventEngine.stop()
-
-
 
 
 ########################################################################
@@ -54,6 +53,11 @@ class TickEngine(object):
         """Constructor"""
         self.eventEngine = eventEngine
 
+        # 用于计算获取自定义指数事件引擎，因通过网络获取A股全部数据需要较长事件，故单独分配个引擎
+        self.eventEngineSelfIndex = EventEngine2()
+        self.eventEngineSelfIndex.register(EVENT_GET_SELF_INDEX_TICK, self.getSelfIndexTick)
+        self.eventEngineSelfIndex.start(False)
+
         #获取A股行情接口
         self.cc = cc()
 
@@ -64,15 +68,19 @@ class TickEngine(object):
         self.loadStockCodeList()
 
         # 配置自选股和大盘指数更新频率
-        self.selfStockTickCount = 0
         self.selfStockTickTrigger = 3   #3秒更新一次
+        self.selfStockTickCount = self.selfStockTickTrigger
 
         #配置自定义指标更新频率
-        self.selfIndexTickCount = 0
-        self.selfIndexTickTrigger = 3  #30秒更新一次
+        self.selfIndexTickTrigger = 30  #30秒更新一次
+        self.selfIndexTickCount = self.selfIndexTickTrigger
 
         # 注册事件监听
         self.registerEvent()
+
+    def exit(self):
+        """关闭相关事件线程"""
+        self.eventEngineSelfIndex.stop()
 
     # ----------------------------------------------------------------------
     def addStockCodeList(self, event):
@@ -89,7 +97,7 @@ class TickEngine(object):
             self.stockCodeList.remove(stock)
 
     # ----------------------------------------------------------------------
-    def getStockListTick(self):
+    def getStockListTick(self, event=None):
         """获取大盘指数和自选股的实时行情"""
 
         # 获取大盘指数的实时行情
@@ -140,7 +148,7 @@ class TickEngine(object):
             return None
 
     # ----------------------------------------------------------------------
-    def getSelfIndexTick(self):
+    def getSelfIndexTick(self, event=None):
         """获取自定义指标实时行情"""
 
         readData = self.cc.getMyIndex()
@@ -175,15 +183,18 @@ class TickEngine(object):
 
         # 更新自选股和大盘指数行情数据
         self.selfStockTickCount += 1
-        if self.selfStockTickCount == self.selfStockTickTrigger:
+        if self.selfStockTickCount >= self.selfStockTickTrigger:
             self.selfStockTickCount = 0
             self.getStockListTick()
 
         # 更新自定义指标数据
         self.selfIndexTickCount += 1
-        if self.selfIndexTickCount == self.selfIndexTickTrigger:
+        if self.selfIndexTickCount >= self.selfIndexTickTrigger:
             self.selfIndexTickCount = 0
-            self.getSelfIndexTick()
+
+            event = Event(EVENT_GET_SELF_INDEX_TICK)
+            event.dict_['data'] = None
+            self.eventEngineSelfIndex.put(event, False)
 
     # ----------------------------------------------------------------------
     def registerEvent(self):
@@ -192,8 +203,3 @@ class TickEngine(object):
         self.eventEngine.register(EVENT_TIMER, self.updateTick)
         self.eventEngine.register(EVENT_SELF_STOCK_ADD, self.addStockCodeList)
         self.eventEngine.register(EVENT_SELF_STOCK_REMOVE, self.removeStockCodeList)
-
-
-
-
-

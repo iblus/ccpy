@@ -20,6 +20,7 @@ EVENT_UPDATE_STATUS_BAR = 'eUpdateStatusBar'
 
 # 行情相关
 EVENT_INDEX_TICK = 'eIndexTick'                 # 大盘指数TICK行情事件
+EVENT_GET_SELF_INDEX_TICK = 'eGetSelfIndexTick' # 计算获取自定义指数的事件
 EVENT_SELF_INDEX_TICK = 'eSelfIndexTick'        # 自定义指数TICK行情事件
 EVENT_SELF_STOCK_TICK = 'eSelfStockTick'        # 自选股TICK行情事件
 

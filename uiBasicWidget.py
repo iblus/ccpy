@@ -130,7 +130,8 @@ class PnlCell(QtWidgets.QTableWidgetItem):
             elif value < 0 and self.color != 'green':
                 self.color = 'green'
                 self.setForeground(COLOR_GREEN)
-        except ValueError:
+        except Exception as err:
+            print(err)
             pass
 
 
@@ -414,7 +415,7 @@ class SelfStockMonitor(BasicMonitor):
         self.setFocusPolicy(Qt.NoFocus)
         # 垂直表头不显示
         self.verticalHeader().setVisible(False)
-        self.horizontalHeader().setVisible(True)
+        self.horizontalHeader().setVisible(False)
         # 设置表格不可编辑
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         # 设置水平滚动条不显示
