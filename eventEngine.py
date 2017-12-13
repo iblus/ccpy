@@ -186,10 +186,10 @@ class EventEngine2(object):
     """
 
     #----------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self, _maxsize=0):
         """初始化事件引擎"""
         # 事件队列
-        self.__queue = Queue()
+        self.__queue = Queue(maxsize=_maxsize)
         
         # 事件引擎开关
         self.__active = False
@@ -272,8 +272,9 @@ class EventEngine2(object):
         self.__active = False
         
         # 停止计时器
-        self.__timerActive = False
-        self.__timer.join()
+        if self.__timerActive == True:
+            self.__timerActive = False
+            self.__timer.join()
         
         # 等待事件处理线程退出
         self.__thread.join()
@@ -302,10 +303,13 @@ class EventEngine2(object):
         if not handlerList:
             del self.__handlers[type_]  
         
-    #----------------------------------------------------------------------
-    def put(self, event):
+    #---------------------------------------- ------------------------------
+    def put(self, event, _block=True):
         """向事件队列中存入事件"""
-        self.__queue.put(event)
+        try:
+            self.__queue.put(event, _block)
+        except Exception as err:
+            print(err)
 
     #----------------------------------------------------------------------
     def registerGeneralHandler(self, handler):
