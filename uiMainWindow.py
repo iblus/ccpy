@@ -57,34 +57,41 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
         # ------------------------------------
-        self.verticalLayout_0_0 = QtWidgets.QVBoxLayout()
+        # 用于异动提醒
+        groupBox_0 = QtWidgets.QGroupBox()
+        groupBox_0.setTitle(u"个股异动")
+        gridLayout = QtWidgets.QGridLayout(groupBox_0)
+        self.tableWidget_yidong = AStockMarketMonitor(self.mainEngine, self.eventEngine)
+        gridLayout.addWidget(self.tableWidget_yidong)
+
+        self.gridLayout_0.addWidget(groupBox_0, 0, 0, 1, 2)
 
         ##
-
+        self.verticalLayout_0_0 = QtWidgets.QVBoxLayout()
         ##自定义指标控件
         groupBox_1 = QtWidgets.QGroupBox()
         groupBox_1.setTitle(u"大盘赚钱效应")
-        gridLayout_1 = QtWidgets.QGridLayout(groupBox_1)
+        gridLayout = QtWidgets.QGridLayout(groupBox_1)
 
-        self.tableWidget_index = SelfIndexMonitor(self.mainEngine,self.eventEngine)
-        gridLayout_1.addWidget(self.tableWidget_index)
+        self.tableWidget_index = SelfIndexMonitor(self.mainEngine, self.eventEngine)
+        gridLayout.addWidget(self.tableWidget_index)
         self.verticalLayout_0_0.addWidget(groupBox_1)
 
         ##自选股行情
         groupBox_2 = QtWidgets.QGroupBox()
         groupBox_2.setTitle(u"自选情况")
-        gridLayout_1 = QtWidgets.QGridLayout(groupBox_2)
+        gridLayout = QtWidgets.QGridLayout(groupBox_2)
         self.tableWidget_selfStock = SelfStockMonitor(self.mainEngine,self.eventEngine)
-        gridLayout_1.addWidget(self.tableWidget_selfStock)
+        gridLayout.addWidget(self.tableWidget_selfStock)
         self.verticalLayout_0_0.addWidget(groupBox_2)
 
-        ##自选输入控件
-        gridLayout_1 = QtWidgets.QGridLayout()
+        ## 自选输入控件
+        gridLayout = QtWidgets.QGridLayout()
         self.lineEdit = QtWidgets.QLineEdit()
         self.radioButton = QtWidgets.QRadioButton()
         self.pushButton = QtWidgets.QPushButton()
 
-        ##配置输入框索引
+        ### 配置输入框索引
         completerStr = self.mainEngine.allStockList['tip']
         if completerStr is None:
             completerStr = ['error']
@@ -97,9 +104,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit.textEdited.connect(self.onCompleterActivated)
         completer.activated.connect(self.onCompleterActivated)
 
-        gridLayout_1.addWidget(self.radioButton,0,0,1,1)
-        gridLayout_1.addWidget(self.lineEdit,1,0,1,1)
-        gridLayout_1.addWidget(self.pushButton,1,2,1,1)
+        gridLayout.addWidget(self.radioButton,0,0,1,1)
+        gridLayout.addWidget(self.lineEdit,1,0,1,1)
+        gridLayout.addWidget(self.pushButton,1,2,1,1)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         # sizePolicy.setHorizontalStretch(0)
@@ -107,33 +114,33 @@ class MainWindow(QtWidgets.QMainWindow):
         # sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
         self.pushButton.setSizePolicy(sizePolicy)
 
-        gridLayout_1.setColumnStretch(0,2)
-        gridLayout_1.setColumnStretch(1,3)
+        gridLayout.setColumnStretch(0,2)
+        gridLayout.setColumnStretch(1,3)
 
-        self.verticalLayout_0_0.addLayout(gridLayout_1)
+        self.verticalLayout_0_0.addLayout(gridLayout)
 
         self.verticalLayout_0_0.setStretch(0, 3)
         self.verticalLayout_0_0.setStretch(1, 5)
         self.verticalLayout_0_0.setStretch(2, 1)
 
-        self.gridLayout_0.addLayout(self.verticalLayout_0_0, 0, 0, 1, 1)
+        self.gridLayout_0.addLayout(self.verticalLayout_0_0, 0, 2, 1, 4)
 
         #指标绘图控件
 
         self.mpl_layout = QtWidgets.QGridLayout()
 
-        gridLayout_0_1 = QtWidgets.QGridLayout()
-        gridLayout_0_1.setContentsMargins(0, 0, 0, 0)
+        gridLayout = QtWidgets.QGridLayout()
+        gridLayout.setContentsMargins(0, 0, 0, 0)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        gridLayout_0_1.addItem(spacerItem, 1, 0, 1, 1)
+        gridLayout.addItem(spacerItem, 1, 0, 1, 1)
 
-        gridLayout_0_1.addLayout(self.mpl_layout, 0, 0, 1, 1)
-        gridLayout_0_1.setRowStretch(0, 3)
-        gridLayout_0_1.setRowStretch(1, 2)
+        gridLayout.addLayout(self.mpl_layout, 0, 0, 1, 1)
+        gridLayout.setRowStretch(0, 3)
+        gridLayout.setRowStretch(1, 2)
 
         # --------------------------------------
-        self.gridLayout_0.addLayout(gridLayout_0_1, 0, 1, 1, 1)
+        # self.gridLayout_0.addLayout(gridLayout, 0, 2, 1, 1)
         # self.gridLayout_0.setColumnStretch(0, 2)
         # self.gridLayout_0.setColumnStretch(1, 3)
 

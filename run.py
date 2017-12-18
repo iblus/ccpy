@@ -34,14 +34,11 @@ def main():
     # 创建主引擎
     me = MainEngine(ee)
 
-    try:
-        # 创建主窗口
-        mw = MainWindow(me, ee)
-        mw.showMaximized()
-    except Exception as err:
-        print(err)
-        me.exit()
-        return
+
+    # 创建主窗口
+    mw = MainWindow(me, ee)
+    mw.showMaximized()
+
     
     # 在主线程中启动Qt事件循环
     sys.exit(qApp.exec_())

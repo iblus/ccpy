@@ -72,7 +72,7 @@ class TickEngine(object):
         self.selfStockTickCount = self.selfStockTickTrigger
 
         #配置自定义指标更新频率
-        self.selfIndexTickTrigger = 30  #30秒更新一次
+        self.selfIndexTickTrigger = 60  #60秒更新一次
         self.selfIndexTickCount = self.selfIndexTickTrigger
 
         # 注册事件监听
@@ -126,26 +126,23 @@ class TickEngine(object):
         # 获取自选股的实时行情
         if len(self.stockCodeList) == 0:
             return None
-        try:
-            for n,stock in enumerate(self.stockCodeList):
-                tick = self.cc.getRealtimeQuote(stock)
-                if tick is None:
-                    return None
 
-                outTick = CCTickData()
-                outTick.symbol = tick.loc[0, 'code']
-                outTick.name = tick.loc[0,'name']
-                outTick.lastPrice = round(float(tick.loc[0,'price']),2)
-                outTick.changePerPrice = tick.loc[0,'changePerPrice']
-                outTick.time = tick.loc[0,'time']
-                # 发送个股实时行情事件
-                event = Event(EVENT_SELF_STOCK_TICK)
-                event.dict_['data'] = outTick
-                self.eventEngine.put(event)
+        for n,stock in enumerate(self.stockCodeList):
+            tick = self.cc.getRealtimeQuote(stock)
+            if tick is None:
+                return None
 
-        except Exception as err:
-            print(err)
-            return None
+            outTick = CCTickData()
+            outTick.symbol = tick.loc[0, 'code']
+            outTick.name = tick.loc[0,'name']
+            outTick.lastPrice = round(float(tick.loc[0,'price']),2)
+            outTick.changePerPrice = tick.loc[0,'changePerPrice']
+            outTick.time = tick.loc[0,'time']
+            # 发送个股实时行情事件
+            event = Event(EVENT_SELF_STOCK_TICK)
+            event.dict_['data'] = outTick
+            self.eventEngine.put(event)
+
 
     # ----------------------------------------------------------------------
     def getSelfIndexTick(self, event=None):

@@ -474,7 +474,7 @@ class SelfIndexMonitor(BasicMonitor):
         # 设置表格不可编辑
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         # 设置水平滚动条不显示
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # 垂直滚动条按项移动
         self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerItem)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -488,6 +488,60 @@ class SelfIndexMonitor(BasicMonitor):
         # 注册事件监听
         self.registerEvent()
 
+########################################################################
+
+class AStockMarketMonitor(BasicMonitor):
+    """A股行情数据实时异动监控组件"""
+
+    # ----------------------------------------------------------------------
+    def __init__(self, mainEngine, eventEngine, parent=None):
+        """Constructor"""
+        super(AStockMarketMonitor, self).__init__(mainEngine, eventEngine, parent)
+
+        # 设置表头有序字典
+        d = OrderedDict()
+        # d['symbol'] = {'chinese': ccText.STOCK_SYMBOL, 'cellType': BasicCell}
+        d['name'] = {'chinese': ccText.STOCK_NAME, 'cellType': BasicCell}
+        d['lastPrice'] = {'chinese': ccText.LAST_PRICE, 'cellType': BasicCell}
+        d['tip']  = {'chinese': ccText.MSG, 'cellType': BasicCell}
+        # d['time'] = {'chinese': ccText.TIME, 'cellType': BasicCell}
+
+        self.setHeaderDict(d)
+
+        # 设置数据键
+        self.setDataKey('symbol')
+
+        # 设置监控事件类型
+        self.setEventType(EVENT_ASTOCK_MARKET_TICK)
+
+        # 设置字体
+        self.setFont(BASIC_FONT)
+
+        # 初始化表格
+        self.initTable()
+
+        # ----------------------------
+        # 去除鼠标点中时的虚框
+        self.setFocusPolicy(Qt.NoFocus)
+        # 垂直表头不显示
+        self.verticalHeader().setVisible(False)
+        self.horizontalHeader().setVisible(False)
+        # 设置表格不可编辑
+        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        # 设置水平滚动条不显示
+        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # 垂直滚动条按项移动
+        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerItem)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        # 去掉自动滚动
+        self.setAutoScroll(False)
+
+        # 设置允许排序
+        self.setSorting(False)
+
+        # 注册事件监听
+        self.registerEvent()
 
 ########################################################################
 class LogMonitor(BasicMonitor):

@@ -23,6 +23,7 @@ EVENT_INDEX_TICK = 'eIndexTick'                 # 大盘指数TICK行情事件
 EVENT_GET_SELF_INDEX_TICK = 'eGetSelfIndexTick' # 计算获取自定义指数的事件
 EVENT_SELF_INDEX_TICK = 'eSelfIndexTick'        # 自定义指数TICK行情事件
 EVENT_SELF_STOCK_TICK = 'eSelfStockTick'        # 自选股TICK行情事件
+EVENT_ASTOCK_MARKET_TICK = 'eAStockMarketTick'  # A股所有股票实时行情异动事件
 
 # 自选股列表的添加与删除
 EVENT_SELF_STOCK_ADD = 'eSelfStockListAdd'          #自选股列表添加
