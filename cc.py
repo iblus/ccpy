@@ -86,6 +86,7 @@ class cc:
             data = pd.read_excel(self.__getTempPath('stockCodes.xlsx'))
 
         if type(data) != pd.core.frame.DataFrame:
+            print("Get stock basice info from xlsx")
             self.stockKey = None
             return
         self.stockKey = pd.DataFrame(columns=['code', 'name', 'py'])
@@ -171,6 +172,10 @@ class cc:
         ##涨停家数
         tmp = realData[realData.trade >= round(realData.settlement*1.1, 2)]
         top_cun = len(tmp)
+        ## 真实涨停家数(非一字涨停)
+        tmp = tmp[(tmp.low < tmp.trade) & (tmp.changepercent < 15)]
+        top_cun_real = len(tmp)
+
         ##跌停家数
         tmp = realData[realData.trade <= round(realData.settlement*0.9, 2)]
         bom_cun = len(tmp)
@@ -222,7 +227,7 @@ class cc:
                'turnoveration_100_cun': [turnoveration_100_cun, '换手率前100 上涨家数'],
 
                '0': ['市场赚钱效应', '%0.2f%%'%(round(up_cun*100/cun, 2)), '平均涨跌幅(%0.2f%% :%0.2f%%)\n涨%d 跌%d'%(up_mean_per,down_mean_per,up_cun, down_cun)],
-               '1': ['涨跌停比', '%d : %d'%(top_cun, bom_cun), '真实涨停%d'%(top_cun)],
+               '1': ['涨跌停比', '%d : %d'%(top_cun, bom_cun), '真实涨停%d'%(top_cun_real)],
                '2': ['高换手50效应','%d%%'%(turnoveration_50_cun), '平均涨跌幅(%0.2f%% :%0.2f%% )'%(turnoveration_50_up_mean_per,turnoveration_50_down_mean_per)],
                '3': ['高换手100效应','%d%%'%(turnoveration_100_cun), '平均涨跌幅(%0.2f%% :%0.2f%% )'%(turnoveration_50_up_mean_per,turnoveration_100_down_mean_per)]
                }
