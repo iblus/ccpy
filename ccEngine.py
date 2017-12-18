@@ -72,7 +72,9 @@ class TickEngine(object):
         self.selfStockTickCount = self.selfStockTickTrigger
 
         #配置自定义指标更新频率
+
         self.selfIndexTickTrigger = 60  #60秒更新一次
+
         self.selfIndexTickCount = self.selfIndexTickTrigger
 
         # 注册事件监听
