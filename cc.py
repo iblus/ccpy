@@ -137,14 +137,17 @@ class cc:
 
     def getRealtimeQuote(self, code=None):
         '''获取输入代码的实时市场数据'''
+        try:
+            msg = ts.get_realtime_quotes(code)
+            if type(msg) != pd.core.frame.DataFrame:
+                return None
+            lastPrice = float(msg.loc[0, 'price'])
+            preClosePrice = float(msg.loc[0, 'pre_close'])
 
-        msg = ts.get_realtime_quotes(code)
-        if type(msg) != pd.core.frame.DataFrame:
+            msg['changePerPrice'] = round((lastPrice - preClosePrice)/preClosePrice, 4)
+        except Exception as e:
+            print(e)
             return None
-        lastPrice = float(msg.loc[0, 'price'])
-        preClosePrice = float(msg.loc[0, 'pre_close'])
-
-        msg['changePerPrice'] = round((lastPrice - preClosePrice)/preClosePrice, 4)
 
         return msg
 
