@@ -143,8 +143,10 @@ class cc:
                 return None
             lastPrice = float(msg.loc[0, 'price'])
             preClosePrice = float(msg.loc[0, 'pre_close'])
-
-            msg['changePerPrice'] = round((lastPrice - preClosePrice)/preClosePrice, 4)
+            try:
+                msg['changePerPrice'] = round((lastPrice - preClosePrice)/preClosePrice, 4)
+            except Exception as err:
+                msg['changePerPrice'] = 0
         except Exception as e:
             print(e)
             return None
