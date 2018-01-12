@@ -8,9 +8,9 @@ import zmq
 from msgpack import packb, unpackb
 from json import dumps, loads
 
-import cPickle
-pDumps = cPickle.dumps
-pLoads = cPickle.loads
+import pickle
+pDumps = pickle.dumps
+pLoads = pickle.loads
 
 
 # 实现Ctrl-c中断recv
@@ -38,18 +38,20 @@ class RpcObject(object):
     def __init__(self):
         """Constructor"""
         # 默认使用msgpack作为序列化工具
-        #self.useMsgpack()
-        self.usePickle()
+        # self.useMsgpack()
+        # self.usePickle()
     
     #----------------------------------------------------------------------
     def pack(self, data):
         """打包"""
-        pass
+        return data
+        # pass
     
     #----------------------------------------------------------------------
     def unpack(self, data):
         """解包"""
-        pass
+        return data
+        # pass
     
     #----------------------------------------------------------------------
     def __jsonPack(self, data):
@@ -101,7 +103,7 @@ class RpcObject(object):
 
 
 ########################################################################
-class RpcServer(RpcObject):
+class RpcServer2(RpcObject):
     """RPC服务器"""
 
     #----------------------------------------------------------------------
@@ -161,6 +163,7 @@ class RpcServer(RpcObject):
             
             # 获取函数名和参数
             name, args, kwargs = req
+            print(req)
             
             # 获取引擎中对应的函数对象，并执行调用，如果有异常则捕捉后返回
             try:
@@ -196,7 +199,7 @@ class RpcServer(RpcObject):
 
 
 ########################################################################
-class RpcClient(RpcObject):
+class RpcClient2(RpcObject):
     """RPC客户端"""
     
     #----------------------------------------------------------------------
@@ -276,6 +279,7 @@ class RpcClient(RpcObject):
             
             # 从订阅socket收取广播数据
             topic, datab = self.__socketSUB.recv_multipart()
+
             
             # 序列化解包
             data = self.unpack(datab)
@@ -286,7 +290,8 @@ class RpcClient(RpcObject):
     #----------------------------------------------------------------------
     def callback(self, topic, data):
         """回调函数，必须由用户实现"""
-        raise NotImplementedError
+        pass
+        # raise NotImplementedError
     
     #----------------------------------------------------------------------
     def subscribeTopic(self, topic):
@@ -298,8 +303,178 @@ class RpcClient(RpcObject):
         注意topic必须是ascii编码
         """
         self.__socketSUB.setsockopt(zmq.SUBSCRIBE, topic)
-        
-    
+
+
+########################################################################
+class RpcServer(RpcObject):
+    """RPC服务器"""
+
+    # ----------------------------------------------------------------------
+    def __init__(self, repAddress, pubAddress):
+        """Constructor"""
+        super(RpcServer, self).__init__()
+
+        # 保存功能函数的字典，key是函数名，value是函数对象
+        self.__functions = {}
+
+        # zmq端口相关
+        self.__context = zmq.Context()
+
+        self.__socketREP = self.__context.socket(zmq.REP)  # 请求回应socket
+        self.__socketREP.bind(repAddress)
+
+        self.__socketPUB = self.__context.socket(zmq.PUB)  # 数据广播socket
+        self.__socketPUB.bind(pubAddress)
+
+        # 工作线程相关
+        self.__active = False  # 服务器的工作状态
+        self.__thread = threading.Thread(target=self.run)  # 服务器的工作线程
+
+    # ----------------------------------------------------------------------
+    def start(self):
+        """启动服务器"""
+        # 将服务器设为启动
+        self.__active = True
+
+        # 启动工作线程
+        if not self.__thread.isAlive():
+            self.__thread.start()
+
+    # ----------------------------------------------------------------------
+    def stop(self):
+        """停止服务器"""
+        # 将服务器设为停止
+        self.__active = False
+
+        # 等待工作线程退出
+        if self.__thread.isAlive():
+            self.__thread.join()
+
+    # ----------------------------------------------------------------------
+    def run(self):
+        """服务器运行函数"""
+        while self.__active:
+            # 使用poll来等待事件到达，等待1秒（1000毫秒）
+            if not self.__socketREP.poll(1000):
+                continue
+
+            # 从请求响应socket收取请求数据
+            reqb = self.__socketREP.recv()
+
+            print(reqb.decode('utf-8'))
+
+            repb ="Server get it".encode('utf-8')
+
+            # 通过请求响应socket返回调用结果
+            self.__socketREP.send(repb)
+
+    # ----------------------------------------------------------------------
+    def publish(self, data):
+        """
+        广播推送数据
+        topic：主题内容（注意必须是ascii编码）
+        data：具体的数据
+        """
+        # 序列化数据
+        datab = data
+
+        # 通过广播socket发送数据
+        # self.__socketPUB.send_multipart([topic, datab])
+        self.__socketPUB.send(datab)
+
+    # ----------------------------------------------------------------------
+    def register(self, func):
+        """注册函数"""
+        self.__functions[func.__name__] = func
+
+
+########################################################################
+class RpcClient(RpcObject):
+    """RPC客户端"""
+
+    # ----------------------------------------------------------------------
+    def __init__(self, reqAddress, subAddress):
+        """Constructor"""
+        super(RpcClient, self).__init__()
+
+        # zmq端口相关
+        self.__reqAddress = reqAddress
+        self.__subAddress = subAddress
+
+        self.__context = zmq.Context()
+        self.__socketREQ = self.__context.socket(zmq.REQ)  # 请求发出socket
+        self.__socketSUB = self.__context.socket(zmq.SUB)  # 广播订阅socket
+
+        # 工作线程相关，用于处理服务器推送的数据
+        self.__active = False  # 客户端的工作状态
+        self.__thread = threading.Thread(target=self.run)  # 客户端的工作线程
+
+    # ----------------------------------------------------------------------
+    def send(self, data):
+        """实现远程调用功能"""
+
+        self.__socketREQ.send(data)
+        repb = self.__socketREQ.recv()
+
+        print(repb.decode('utf-8'))
+
+        return 'ok'
+
+    # ----------------------------------------------------------------------
+    def start(self):
+        """启动客户端"""
+        # 连接端口
+        self.__socketREQ.connect(self.__reqAddress)
+        self.__socketSUB.connect(self.__subAddress)
+
+        # 将服务器设为启动
+        self.__active = True
+
+        # 启动工作线程
+        if not self.__thread.isAlive():
+            self.__thread.start()
+
+    # ----------------------------------------------------------------------
+    def stop(self):
+        """停止客户端"""
+        # 将客户端设为停止
+        self.__active = False
+
+        # 等待工作线程退出
+        if self.__thread.isAlive():
+            self.__thread.join()
+
+    # ----------------------------------------------------------------------
+    def run(self):
+        """客户端运行函数"""
+        while self.__active:
+            # 使用poll来等待事件到达，等待1秒（1000毫秒）
+            if not self.__socketSUB.poll(1000):
+                continue
+
+            # 从订阅socket收取广播数据
+            datab = self.__socketSUB.recv()
+
+
+            # 调用回调函数处理
+            self.callback( datab)
+
+    # ----------------------------------------------------------------------
+    def callback(self, data):
+        """回调函数，必须由用户实现"""
+        pass
+        # raise NotImplementedError
+
+    # ----------------------------------------------------------------------
+    def subscribeTopic(self, topic):
+        """
+        订阅特定主题的广播数据
+
+        可以使用topic=''来订阅所有的主题
+
+        注意topic必须是ascii编码
+        """
+        self.__socketSUB.setsockopt(zmq.SUBSCRIBE, topic)
 
 ########################################################################
 class RemoteException(Exception):
