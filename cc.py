@@ -13,7 +13,8 @@ import numpy as np
 from matplotlib.dates import date2num
 from datetime import datetime, timedelta
 from pprint import pprint
-import xpinyin
+import pypinyin
+import re
 import random
 
 
@@ -77,6 +78,27 @@ class cc:
 
 
     def __buildStockKey(self):
+
+        # 全角转半角
+        def Q2B(uchar):
+            if len(uchar) != 1:
+                raise (TypeError, 'expected a character, but a string found!')
+
+            inner_code = ord(uchar)
+            if inner_code == 0x3000:
+                inner_code = 0x0020
+            else:
+                inner_code -= 0xfee0
+            if inner_code < 0x0020 or inner_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
+                return uchar
+
+            return chr(inner_code)
+
+        # 把字符串全角转半角
+        def stringQ2B(ustring):
+            return ''.join([Q2B(uchar) for uchar in ustring])
+
+
         '''获取A股所有股票的代码和名称'''
 
         # 获取A股所有股票的基本信息
@@ -91,10 +113,15 @@ class cc:
             return
         self.stockKey = pd.DataFrame(columns=['code', 'name', 'py'])
 
-        p = xpinyin.Pinyin()
+        #取出拼音列表中字母和数字
+        comp = re.compile(r'\w')
+
         dd = data.loc[:,['name']]
         dd = dd.reset_index()
-        dd['py'] = dd['name'].map(lambda x: (''.join(p.get_initials(x, '').split())))
+        # 将名字中的全角转为半角
+        dd['name'] = dd['name'].map(lambda x: stringQ2B(x))
+        dd['py'] = dd['name'].map(lambda x: (''.join(comp.findall(str(pypinyin.pinyin(x,style=pypinyin.Style.FIRST_LETTER))))).upper())
+        # dd['py'] = dd['name'].map(lambda x: (''.join(p.get_initials(x, '').split())))
         dd['name'] = dd['name'].map(lambda x: (''.join(x.split())))
         # dd['code'] = dd['code'].map(lambda x: ('%06d'%(int(x))))
 
