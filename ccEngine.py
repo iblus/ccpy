@@ -153,6 +153,17 @@ class TickEngine(object):
         readData = self.cc.getMyIndex()
         if readData is None:
             return
+        # 显示时间
+        outTickTime = CCIndexData()
+        outTickTime.symbol = 'Time'
+        outTickTime.name = readData['time'][0]
+        outTickTime.lastPrice = ''
+        outTickTime.tip = ''
+        # print(outTick.tip)
+        event = Event(EVENT_SELF_INDEX_TICK)
+        event.dict_['data'] = outTickTime
+        self.eventEngine.put(event)
+
         selfIndexList = ['M0','M1','M2','M3']
         for n,index in enumerate(selfIndexList):
             outTick = CCIndexData()
