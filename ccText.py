@@ -19,6 +19,7 @@ LOW_PRICE = u'最低价'
 CHANGEPER_PRICE = u'涨幅'
 TIME = u'时间'
 MSG = u'信息'
+REMOVE_CODE =u'删除代码'
 
 GATEWAY = u'接口'
 CONTENT = u'内容'

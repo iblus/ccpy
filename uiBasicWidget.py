@@ -179,6 +179,9 @@ class BasicMonitor(QtWidgets.QTableWidget):
 
         # 默认每次新添加一行数据到最后一行
         self.insertFirstRow = False
+
+        # 初始化右键菜单
+        self.initMenu()
         
     #----------------------------------------------------------------------
     def setHeaderDict(self, headerDict):
@@ -338,6 +341,16 @@ class BasicMonitor(QtWidgets.QTableWidget):
         """设置是否允许根据表头排序"""
         self.sorting = sorting
 
+    #----------------------------------------------------------------------
+    def initMenu(self):
+        """初始化右键菜单"""
+        self.menu = QtWidgets.QMenu(self)
+        pass
+
+    #----------------------------------------------------------------------
+    def contextMenuEvent(self, event):
+        """右键点击事件"""
+        self.menu.popup(QtGui.QCursor.pos())
 
 ########################################################################
 
@@ -432,6 +445,24 @@ class SelfStockMonitor(BasicMonitor):
 
         # 注册事件监听
         self.registerEvent()
+
+    #----------------------------------------------------------------------
+    def initMenu(self):
+        """初始化右键菜单"""
+        self.menu = QtWidgets.QMenu(self)
+
+        removeAction = QtWidgets.QAction(ccText.REMOVE_CODE, self)
+        removeAction.triggered.connect(self.removeCode)
+
+        self.menu.addAction(removeAction)
+
+    #----------------------------------------------------------------------
+    def removeCode(self):
+        pass
+        # print(self.selectedItems()[0])
+        # event = Event(EVENT_SELF_STOCK_REMOVE)
+        # event.dict_['data'] = '000001'
+        # self.eventEngine.put(event)
 
 ########################################################################
 

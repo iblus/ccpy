@@ -249,21 +249,25 @@ class cc:
                }
         dd = pd.DataFrame(val)
         self.myIndex = self.myIndex.append(dd ,ignore_index = True)
-        val = {
-               'all_cun': [cun, '总数 '],
-               'bom_cun': [bom_cun, '跌停家数'],
-               'time'   : [timeSp, '时间'],
-               'up_cun': [up_cun, '上涨家数'],
-               'top_cun': [top_cun, '涨停家数'],
-               'turnoveration_50_cun': [turnoveration_50_cun, '换手率前50 上涨家数'],
-               'turnoveration_100_cun': [turnoveration_100_cun, '换手率前100 上涨家数'],
+        try:
+            val = {
+                   'all_cun': [cun, '总数 '],
+                   'bom_cun': [bom_cun, '跌停家数'],
+                   'time'   : [timeSp, '时间'],
+                   'up_cun': [up_cun, '上涨家数'],
+                   'top_cun': [top_cun, '涨停家数'],
+                   'turnoveration_50_cun': [turnoveration_50_cun, '换手率前50 上涨家数'],
+                   'turnoveration_100_cun': [turnoveration_100_cun, '换手率前100 上涨家数'],
 
-               '0': ['市场赚钱效应', '%0.2f%%'%(round(up_cun*100/cun, 2)), '平均涨跌幅(%0.2f%% :%0.2f%%)\n涨%d 跌%d'%(up_mean_per,down_mean_per,up_cun, down_cun)],
-               '1': ['涨跌停比', '%d : %d'%(top_cun, bom_cun), '真实涨停%d'%(top_cun_real)],
-               '2': ['高换手50效应','%d%%'%(turnoveration_50_cun), '平均涨跌幅(%0.2f%% :%0.2f%% )'%(turnoveration_50_up_mean_per,turnoveration_50_down_mean_per)],
-               '3': ['高换手100效应','%d%%'%(turnoveration_100_cun), '平均涨跌幅(%0.2f%% :%0.2f%% )'%(turnoveration_50_up_mean_per,turnoveration_100_down_mean_per)]
-               }
-        return val
+                   '0': ['市场赚钱效应', '%0.2f%%'%(round(up_cun*100/cun, 2)), '平均涨跌幅(%0.2f%% :%0.2f%%)\n涨%d 跌%d'%(up_mean_per,down_mean_per,up_cun, down_cun)],
+                   '1': ['涨跌停比', '%d : %d'%(top_cun, bom_cun), '真实涨停%d'%(top_cun_real)],
+                   '2': ['高换手50效应','%d%%'%(turnoveration_50_cun), '平均涨跌幅(%0.2f%% :%0.2f%% )'%(turnoveration_50_up_mean_per,turnoveration_50_down_mean_per)],
+                   '3': ['高换手100效应','%d%%'%(turnoveration_100_cun), '平均涨跌幅(%0.2f%% :%0.2f%% )'%(turnoveration_50_up_mean_per,turnoveration_100_down_mean_per)]
+                   }
+            return val
+        except Exception as e:
+            print(e)
+            return None
 
     # ----------------------------------------------------------------------
     def __getTempPath(self, name):
