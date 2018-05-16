@@ -35,16 +35,16 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.setWindowFlags(Qt.WindowMaximizeButtonHint)
 
         self.resize(800, 600)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
-        self.setMaximumSize(QtCore.QSize(800, 600))
+        self.setMaximumSize(QtCore.QSize(1000, 800))
 
         screen = QtWidgets.QDesktopWidget().screenGeometry()
         size = self.geometry()
         # self.move(int((screen.width() - size.width())/2), int((screen.height() - size.height())/2))
-        self.move(500, 500)
+        self.move(800, 500)
 
         #----------------------------------------------------------------------
     def initCentral(self):

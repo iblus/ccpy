@@ -1,5 +1,6 @@
-__pycache__/*
+﻿__pycache__/*
 .idea
+.vs
 .vscode
 temp
 
